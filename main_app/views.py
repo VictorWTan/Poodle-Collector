@@ -1,7 +1,21 @@
 from django.shortcuts import render
 from .models import Poodle
 from django.http import HttpResponse
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
+class PoodleCreate(CreateView):
+  model = Poodle
+  fields = '__all__'
+  success_url = '/poodles/'
+
+class PoodleUpdate(UpdateView):
+  model = Poodle
+  # Let's disallow the renaming of a cat by excluding the name field!
+  fields = ['description', 'age']
+
+class PoodleDelete(DeleteView):
+  model = Poodle
+  success_url = '/poodles/'
 
 # Define the home view
 def home(request):
