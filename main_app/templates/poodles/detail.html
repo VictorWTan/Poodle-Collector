@@ -3,20 +3,101 @@
 
 <h1>Poodle Details</h1>
 
-<div class="card">
-  <div class="card-content">
-    <span class="card-title">{{ poodle.name }}</span>
-    <p>Description: {{ poodle.description }}</p>
-    {% if poodle.age > 1 %}
-      <p>Age: {{ poodle.age }}</p>
-    {% else %}
-      <p>Age: Puppy</p>
-    {% endif %}
+<div class="row">
+  <div class="col s6">
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">{{ poodle.name }}</span>
+        <p>Breed: {{ poodle.breed }}</p>
+        <p>Description: {{ poodle.description }}</p>
+        {% if poodle.age > 0 %}
+        <p>Age: {{ poodle.age }}</p>
+        {% else %}
+        <p>Age: Puppy</p>
+        {% endif %}
+      </div>
+      <div class="card-action">
+        <a href="{% url 'poodles_update' poodle.id %}">Edit</a>
+        <a href="{% url 'poodles_delete' poodle.id %}">Delete</a>
+      </div>
+    </div>
   </div>
-  <div class="card-action">
-    <a href="{% url 'poodles_update' poodle.id %}">Edit</a>
-    <a href="{% url 'poodles_delete' poodle.id %}">Delete</a>
+  <div class="col s6">
+    <form action="{% url 'add_feeding' poodle.id %}" method="POST">
+      {% csrf_token %}
+      {{ feeding_form.as_p }}
+      <input type="submit" class="btn" value="Add Feeding">
+    </form>
+    <table class="striped">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Meal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for feeding in poodle.feeding_set.all %}
+        <tr>
+          <td>{{feeding.date}}</td>
+          <td>{{feeding.get_meal_display}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
+<hr>
+<div class="row">
+  <div class="col s6">
+    <h3>{{ poodle.name }}'s Toys</h3>
+    {% if poodle.toys.count %}
+    {% for toy in poodle.toys.all %}
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">
+          A <span style="color: {{ toy.color }}">{{ toy.color }}</span> {{ toy.name }}
+        </span>
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <h5>No Toys :(</h5>
+    {% endif %}
+  </div>
+</div>
+<div class="col s6">
+  <h3>Available Toys</h3>
+  {% if toys.count %}
+  {% for toy in toys.all %}
+  <div class="card">
+    <div class="card-content">
+      <span class="card-title">
+        A <span style="color: {{ toy.color }}">{{ toy.color }}</span> {{ toy.name }}
+      </span>
+    </div>
+    <div class="card-action">
+      <form action="{% url 'assoc_toy' poodle.id toy.id %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn">Add</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <h5>{{poodle.name}} Already Has All Toys Available</h5>
+  {% endif %}
+</div>
+<script>
+  const dateEl = document.getElementById('id_date');
+  M.Datepicker.init(dateEl, {
+    format: 'yyyy-mm-dd',
+    defaultDate: new Date(),
+    setDefaultDate: true,
+    autoClose: true
+  });
 
+  // add additional JS to initialize select below
+  const selectEl = document.getElementById('id_meal');
+  M.FormSelect.init(selectEl);
+</script>
 {% endblock %}
